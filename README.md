@@ -1,81 +1,90 @@
-# LLM Proxy - Nginx反向代理
+# LLM Proxy - Nginx Reverse Proxy
 
-基于Docker的Nginx反向代理，用于代理各种LLM API请求。
+Docker-based Nginx reverse proxy for LLM API requests.
 
-## 启动代理
+## Start Proxy
 
 ```bash
 docker-compose up -d
 ```
 
-**效果**：
-- 访问 `http://localhost/openai/*` → 代理到 `https://api.openai.com/*`
-- 访问 `http://localhost/health` → 健康检查
-- 支持WebSocket流式响应
+**Effect**:
 
-**测试**：
+- Access `http://localhost/openai/*` → Proxy to `https://api.openai.com/*`
+- Access `http://localhost/health` → Health check
+- Support WebSocket streaming
+
+**Test**:
+
 ```bash
-# 健康检查
+# Health check
 curl http://localhost/health
 
-# OpenAI API代理（需要API密钥）
+# OpenAI API proxy (requires API key)
 curl -H "Authorization: Bearer your-api-key" \
      http://localhost/openai/v1/models
 ```
 
-## 命令行工具
+## CLI Tool
 
-### 安装
+### Install
+
 ```bash
 uv sync && uv run pip install -e .
 ```
 
-### 使用
+### Usage
 
 ```bash
-# 添加代理：/claude → https://api.anthropic.com
+# Add proxy: /claude → https://api.anthropic.com
 llm-proxy add --endpoint /claude --base-url https://api.anthropic.com --name "Claude API"
 
-# 添加带路径的代理：/v3 → https://cf.gpt.ge/v1
+# Add proxy with path: /v3 → https://cf.gpt.ge/v1
 llm-proxy add --endpoint /v3 --base-url https://cf.gpt.ge/v1 --name "Custom API"
 
-# 列出所有代理
+# List all proxies
 llm-proxy list
 
-# 删除代理
+# Remove proxy
 llm-proxy remove --endpoint /claude
 
-# 查看状态
+# Check status
 llm-proxy status
 ```
 
-**参数说明**：
-- `--endpoint` 本地路径（如 `/claude`）
-- `--base-url` 目标API地址（如 `https://api.anthropic.com`）
-- `--name` 可选的名称描述
-- `--force` 强制覆盖已存在的配置
+**Parameters**:
 
-## SSL配置
+- `--endpoint` Local path (e.g. `/claude`)
+- `--base-url` Target API URL (e.g. `https://api.anthropic.com`)
+- `--name` Optional name description
+- `--force` Force overwrite existing configuration
 
-### 1. 准备证书
+## SSL Configuration
+
+### 1. Prepare Certificates
+
 ```bash
 mkdir ssl
-# 将证书文件放入 ssl/ 目录：
-# ssl/cert.pem - SSL证书
-# ssl/key.pem - 私钥
+# Place certificate files in ssl/ directory:
+# ssl/cert.pem - SSL certificate
+# ssl/key.pem - Private key
 ```
 
-### 2. 启用HTTPS
-编辑 `nginx/nginx.conf`：
-- 取消注释 HTTPS server 块
-- 修改 `server_name your-domain.com` 为你的域名
+### 2. Enable HTTPS
 
-编辑 `docker-compose.yml`：
-- 取消注释 SSL 卷挂载行：`- ./ssl:/etc/nginx/ssl:ro`
+Edit `nginx/nginx.conf`:
 
-### 3. 重启服务
+- Uncomment HTTPS server block
+- Change `server_name your-domain.com` to your domain
+
+Edit `docker-compose.yml`:
+
+- Uncomment SSL volume mount: `- ./ssl:/etc/nginx/ssl:ro`
+
+### 3. Restart Service
+
 ```bash
 docker-compose down && docker-compose up -d
 ```
 
-**效果**：HTTPS访问 `https://your-domain.com/openai/*` 等端点
+**Effect**: HTTPS access to `https://your-domain.com/openai/*` endpoints
