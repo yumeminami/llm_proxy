@@ -90,8 +90,8 @@ class NginxManager:
             
             # Headers for proper proxying
             proxy_set_header Host {parsed.hostname};
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Real-IP $server_addr;
+            proxy_set_header X-Forwarded-For $server_addr;
             proxy_set_header X-Forwarded-Proto $scheme;
             
             # WebSocket support
